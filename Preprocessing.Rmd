@@ -1,0 +1,88 @@
+---
+title: "Pré-traitement des données sur le Jour de Dépassement"
+author: "Anna Bonnet"
+date: "2024-08-28"
+output: html_document
+---
+
+## Contexte
+
+Le jour du dépassement (overshoot day en anglais) correspond à la date de l’année, calculée par l'ONG américaine Global Footprint Network, à partir de laquelle l’humanité est supposée avoir consommé l’ensemble des ressources naturelles que la planète est capable de produire en un an pour régénérer ses consommations ou absorber les déchets produits, dont le dioxyde de carbone. Passé cette date, l’humanité puiserait donc dans ses ressources à une vitesse qui n'est pas de l'ordre du « renouvelable à échelle humaine », accumulant les déchets au-delà de leur absorption sur le reste de l'année en cours. 
+
+Cette mesure peut être faite à l'échelle mondiale mais également à l'échelle de chaque pays, où la date de dépassement est calculée proportionnellement aux ressources allouées à chaque pays en fonction de différents critères, en particulier sa taille et son nombre d'habitants.
+Ainsi pour chaque pays, on peut calculer "le nombre de Terres requises", c'est-à-dire le nombre de planètes qu'il faudrait pour avoir toutes les ressources nécessaires si la population mondiale consommait comme ce pays. Ensuite le jour du dépassement est calculé en divisant 365 (le nombre de jours dans l'année) par le nombre de Terres requises. Ainsi, si un pays a un nombre de Terres requises égal à 2, ça voudra dire que son jour de dépassement aura lieu au bout de 6 mois, donc autour du 1e juillet.
+
+## Sélection d'un sous-ensemble de variables
+
+Le script suivant permet de récupérer une sous-partie de la base de données "NFA 2022 Public Data Package 1.1.xlsx", directement téléchargée sur https://www.footprintnetwork.org/
+
+La base de données réduite contient les variables suivantes (données de 2018) :
+
+- le nom du pays
+
+- l'espérance de vie
+
+- l'indice de développement humain (hdi)
+
+- le PIB par habitant (per_capita_gdp)
+
+- la région du monde
+
+- le revenu moyen : Low Income (LI), Lower-Middle Income (LM), Upper-Middle Income (UM), High Income (HI)
+
+- la population (en million d'habitants)
+
+- le nombre de Terres requises
+
+- le jour du dépassement 
+
+On obtiendra ainsi un fichier overshoot_country.Rdata, utilisé dans les différents énoncés. 
+```{r }
+library(tidyverse)
+library(readxl)
+
+
+pays <- read_excel("NFA 2022 Public Data Package 1.1.xlsx", 
+    sheet = "Country Results 2022 Ed (2018)", 
+    range = cell_rows(22:206))
+
+colnames(pays)[10:15] <- gsub("Footprint\\.\\.\\.[0-9][0-9]","prod",colnames(pays)[10:15])
+
+colnames(pays)[17:22] <- gsub("Footprint\\.\\.\\.[0-9][0-9]","cons",colnames(pays)[17:22])
+
+
+colnames(pays)[24:27] <- paste(colnames(pays)[24:27] ,"bioc") 
+colnames(pays)[colnames(pays)=="Total Ecological Footprint (Consumption)"] ="total_cons"
+colnames(pays)[colnames(pays)=="Total Ecological Footprint (Production)"] ="total_prod"
+colnames(pays)[colnames(pays)=="Population (millions)"] ="pop"
+colnames(pays)[colnames(pays)=="actual \r\nCountry Overshoot Day \r\n2018"] ="overshoot"
+colnames(pays)[colnames(pays)== "Ecological (Deficit) or Reserve" ] ="ecological"
+colnames(pays)[grepl("Built up land",colnames(pays))]  <- paste("builtup",c("cons","prod",""),sep="_") # c'est trois fois la meme chose donc on en garde qu'une
+pays <- pays %>% select(-builtup_cons, -builtup_prod)
+
+colnames(pays) <- tolower(colnames(pays))
+colnames(pays) <- gsub(" ", "_", colnames(pays))
+
+pays <-pays %>% 
+  mutate(overshoot_day = map_dbl(overshoot,~as.POSIXlt(.)$yday), 
+         overshoot_day = case_when(number_of_earths_required<=1~365,
+                                   TRUE~overshoot_day),
+         per_capita_gdp = as.numeric(per_capita_gdp)) %>% 
+  arrange(overshoot_day) %>% 
+  mutate(country = factor(country, levels = unique(country)))
+
+pays_comp <- pays %>% 
+  select(country, life_expectancy,hdi,per_capita_gdp,region, 
+         income_group,pop,total_prod,total_cons,number_of_countries_required,number_of_earths_required,
+         overshoot_day)
+pays_comp <- pays_comp[complete.cases(pays_comp),]
+
+pays_full <- pays[complete.cases(pays),]
+
+
+overshoot_country=pays%>%select(country,life_expectancy,hdi,per_capita_gdp,region,income_group,pop,number_of_countries_required,number_of_earths_required,overshoot_day)
+save(overshoot_country,file="Overshoot_day_by_country.Rdata")
+```
+  
+```
+

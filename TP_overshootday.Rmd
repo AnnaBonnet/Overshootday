@@ -1,0 +1,51 @@
+---
+title: "Le jour du dépassement par pays"
+author: "Anna Bonnet"
+date: "2023-12-13"
+output: html_document
+---
+
+
+## Contexte
+
+Le jour du dépassement (overshoot day en anglais) correspond à la date de l’année, calculée par l'ONG américaine Global Footprint Network, à partir de laquelle l’humanité est supposée avoir consommé l’ensemble des ressources naturelles que la planète est capable de produire en un an pour régénérer ses consommations ou absorber les déchets produits, dont le dioxyde de carbone. Passé cette date, l’humanité puiserait donc dans ses ressources à une vitesse qui n'est pas de l'ordre du « renouvelable à échelle humaine », accumulant les déchets au-delà de leur absorption sur le reste de l'année en cours. 
+
+Cette mesure peut être faite à l'échelle mondiale mais également à l'échelle de chaque pays, où la date de dépassement est calculée proportionnellement aux ressources allouées à chaque pays en fonction de différents critères, en particulier sa taille et son nombre d'habitants.
+Ainsi pour chaque pays, on peut calculer "le nombre de Terres requises", c'est-à-dire le nombre de planètes qu'il faudrait pour avoir toutes les ressources nécessaires si la population mondiale consommait comme ce pays. Ensuite le jour du dépassement est calculé en divisant 365 (le nombre de jours dans l'année) par le nombre de Terres requises. Ainsi, si un pays a un nombre de Terres requises égal à 2, ça voudra dire que son jour de dépassement aura lieu au bout de 6 mois, donc autour du 1e juillet.
+
+Dans ce jeu de données, mis à disposition publiquement par l'ONG Global Footprint Network (https://data.footprintnetwork.org/), on s'intéresse aux variables suivantes (données de 2018) :
+
+- le nom du pays
+
+- l'espérance de vie
+
+- l'indice de développement humain (hdi)
+
+- le PIB par habitant (per_capita_gdp)
+
+- la région du monde
+
+- le revenu moyen : Low Income (LI), Lower-Middle Income (LM), Upper-Middle Income (UM), High Income (HI)
+
+- la population (en million d'habitants)
+
+- le nombre de Terres requises
+
+- le jour du dépassement 
+
+NB : La base de données complète est le fichier "NFA 2022 Public Data Package 1.1.xlsx". Ici, on a utilisé un pré-traitement des données grâce au code contenu et expliqué dans le fichier Preprocessing.Rmd 
+
+## But du TP 
+
+Le principe de ce TP est d'identifier quelques questions pertinentes et d'y répondre :
+
+- à l'aide d'une brève analyse descriptive
+
+- avec des éléments de régression linéaire (régression simple, multiple et/ou ANOVA)
+
+
+Pour charger le jeu de données :
+
+```{r}
+load("Overshoot_day_by_country.Rdata")
+```

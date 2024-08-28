@@ -1,0 +1,80 @@
+---
+title: "Exercice Modèle Linéaire et ANOVA"
+date: "18 décembre 2023"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+
+
+Le jour du dépassement (overshoot day en anglais) correspond à la date de l’année, calculée par l'ONG américaine Global Footprint Network, à partir de laquelle l’humanité est supposée avoir consommé l’ensemble des ressources naturelles que la planète est capable de produire en un an pour régénérer ses consommations ou absorber les déchets produits, dont le dioxyde de carbone. Passé cette date, l’humanité puiserait donc dans ses ressources à une vitesse qui n'est pas de l'ordre du « renouvelable à échelle humaine », accumulant les déchets au-delà de leur absorption sur le reste de l'année en cours. 
+
+Cette mesure peut être faite à l'échelle mondiale mais également à l'échelle de chaque pays, où la date de dépassement est calculée proportionnellement aux ressources allouées à chaque pays en fonction de différents critères, en particulier sa taille et son nombre d'habitants. Le jeu de données contient notamment les informations suivantes (par pays) :
+
+
+- l'espérance de vie
+
+- l'indice de développement humain (hdi)
+
+- le PIB par habitant (per_capita_gdp)
+
+- la région du monde
+
+- la population (en million d'habitants)
+
+- le jour du dépassement 
+
+NB : La base de données complète est le fichier "NFA 2022 Public Data Package 1.1.xlsx", téléchargée sur https://www.footprintnetwork.org/ . Ici, on a utilisé un pré-traitement des données grâce au code contenu et expliqué dans le fichier Preprocessing.Rmd 
+
+## Influence des variables quantitatives
+
+On s'intéresse à l'influence des variables quantitatives, à savoir l'indice de développement humain (hdi), le PIB (per_capita_gdp), la taille de la population (pop) et l'espérance de vie (life_expectancy), sur le jour de dépassement. On souhaite notamment répondre aux questions suivantes :
+
+- Quelles sont les variables avec un impact sur le jour du dépassement ? 
+
+- Quel sous-ensemble de variables choisiriez-vous pour expliquer au mieux le jour du dépassement ?
+
+- Avec le modèle choisi, donnez la valeur prédite pour un pays qui aurait les caractéristiques suivantes : un hdi de 0.8, un PIB de 35000, une espérance de vie de 78 ans et un population de 5 millions d'habitants.
+
+Pour chaque test vous interpréterez les sorties, vous écrirez les hypothèses testées, la sortie R qui vous donne le résultat ainsi que la conclusion.
+
+
+```{r}
+load("Overshoot_day_by_country.Rdata")
+overshoot_country=na.omit(overshoot_country)
+library(car)
+```
+
+
+```{r}
+res=lm(overshoot_day~hdi+per_capita_gdp+pop+life_expectancy,data=overshoot_country)
+vif(res)
+summary(res)
+anova(res)
+plot(res)
+shapiro.test(res$residuals)
+t.test(res$residuals,mu=0)
+res2=lm(overshoot_day~hdi,data=overshoot_country)
+res3=lm(overshoot_day~hdi+per_capita_gdp,data=overshoot_country)
+res4=lm(overshoot_day~hdi+per_capita_gdp+life_expectancy,data=overshoot_country)
+anova(res2,res)
+anova(res3,res)
+anova(res4,res)
+```
+
+## Influence d'une variable qualitative
+
+On s'intéresse maintenant à l'effet de la variable région sur le jour du dépassement. Commentez et interprétez les sorties R suivantes, en précisant la différence entre les deux sorties **res_bis** et **res_ter**.
+
+```{r}
+
+res_bis=lm(overshoot_day~region,data=overshoot_country)
+summary(res_bis)
+overshoot_country$region=as.factor(overshoot_country$region)
+overshoot_country$region=relevel(overshoot_country$region, ref="Asia-Pacific")
+res_ter=lm(overshoot_day~region,data=overshoot_country)
+summary(res_ter)
+plot(res_ter)
+```
+
