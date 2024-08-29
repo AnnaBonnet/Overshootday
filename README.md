@@ -7,7 +7,7 @@ pour chaque pays, entre 1963 et 2018. Elle contient également beaucoup d'inform
 
 - Le code Preprocessing.Rmd permet d'effectuer un pré-traitement des données qui conserve un sous-ensemble de variables : cette base de données réduite Overshoot_day_by_country.Rdata est utilisée dans les deux énoncés décrits ci-dessous.
 
-- Le fichier Regression_overshootday.Rmd permet d'analyser des sorties R de régression linéaire et ANOVA (pas de code à faire).
+- Le fichier Regression_overshootday.Rmd est un énoncé de TD/examen sur table qui demande d'analyser des sorties R de régression linéaire et ANOVA (pas de code à faire).
 
 - Le fichier TP_overshootday.Rmd est un sujet de TP (très peu guidé) pour analyser la base de données.
 
