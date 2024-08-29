@@ -10,3 +10,5 @@ pour chaque pays, entre 1963 et 2018. Elle contient également beaucoup d'inform
 - Le fichier Regression_overshootday.Rmd permet d'analyser des sorties R de régression linéaire et ANOVA (pas de code à faire).
 
 - Le fichier TP_overshootday.Rmd est un sujet de TP (très peu guidé) pour analyser la base de données.
+
+  Ces supports ont été réalisés avec l'aide précieuse de Marie Perrot-Dockès.
